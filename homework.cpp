@@ -39,7 +39,7 @@ public:
     Lake *current_lake;
     string current_bait;
     Fisherman(string name, int money)
-            : name(std::move(name)), money(money), fishing_time(0), current_lake(nullptr), current_weight(0) {}
+    : name(std::move(name)), money(money), fishing_time(0), current_lake(nullptr), current_weight(0) {}
 
     void setCurrentLake(Lake *lake)
     {
@@ -173,8 +173,6 @@ public:
         return true;
     }
 };
-
-const string &R(const string& basicString);
 
 void readFish(const string& filename, vector<Fish> &fishes)
 {
@@ -344,4 +342,3 @@ int main()
         }
     }
 
-    
