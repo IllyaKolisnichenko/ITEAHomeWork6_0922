@@ -39,7 +39,7 @@ public:
     Lake *current_lake;
     string current_bait;
     Fisherman(string name, int money)
-    : name(std::move(name)), money(money), fishing_time(0), current_lake(nullptr), current_weight(0) {}
+            : name(std::move(name)), money(money), fishing_time(0), current_lake(nullptr), current_weight(0) {}
 
     void setCurrentLake(Lake *lake)
     {
@@ -174,6 +174,8 @@ public:
     }
 };
 
+const string &R(const string& basicString);
+
 void readFish(const string& filename, vector<Fish> &fishes)
 {
     ifstream file(filename);
@@ -232,13 +234,34 @@ void readLakes(const string& filename, vector<Lake> &lakes, vector<Fish> &fish) 
     file.close();
 }
 
+enum Actions{
+    CastFishingRod = 1,
+    ChangeBait,
+    SellFishes,
+    ChangeLake,
+    CurrentCatch,
+    ExtendTime,
+    Exit
+};
+
 
 int main()
 {
+    string file_fishes;
+    string file_lakes;
+
+
+    cout << "Specify the path to the fish information file\n";
+    cout << "Like C:/Users/Denis/Downloads/fishes.txt\n";
+    cin >> file_fishes;
+    cout << "Specify the path to the fish information file\n";
+    cout << "Like C:/Users/Denis/Downloads/lakes.txt\n";
+    cin >> file_lakes;
+
     vector<Fish> fish;
-    readFish(R"(C:\Users\Denis\Downloads\fishes.txt)", fish);
+    readFish(file_fishes, fish);
     vector<Lake> lakes;
-    readLakes(R"(C:\Users\Denis\Downloads\lakes.txt)", lakes, fish);
+    readLakes(file_lakes, lakes, fish);
 
 
     string name;
@@ -249,8 +272,7 @@ int main()
     cin >> money;
     Fisherman fisherman(name, money);
 
-    while (true)
-    {
+    while (true) {
         cout << "\nSelect an action:" << endl;
         cout << "1. Cast a fishing rod" << endl;
         cout << "2. Change bait" << endl;
@@ -264,72 +286,62 @@ int main()
 
         string bait_choice;
 
-        switch (choice)
-        {
-            case 1:
-                fisherman.fish();
-                break;
+        if (choice == Actions::CastFishingRod)
+            fisherman.fish();
 
-            case 2:
-                if (fisherman.current_lake == nullptr)
-                {
-                    cout << "Choose a lake first!\n" << endl;
-                    break;
-                }
-                cout << "Available baits: " << endl;
-                for (auto &item : fisherman.current_lake->bait)
-                {
-                    cout << item.first << endl;
-                }
-                cout << "Type name of bait: \n";
+        else if (choice == Actions::ChangeBait) {
+            if (fisherman.current_lake == nullptr) {
+                cout << "Choose a lake first!\n" << endl;
+                continue;
+            }
 
-                cin >> bait_choice;
-                try {
-                    fisherman.setCurrentBait(fisherman.current_lake->bait.find(bait_choice)->first);
-                }
-                catch (bad_alloc) {
-                    cout << "Type name, not number!!\n" << endl;
-                }
-                break;
+            cout << "Available baits: " << endl;
+            for (auto &item: fisherman.current_lake->bait) {
+                cout << item.first << endl;
+            }
+            cout << "Type name of bait: \n";
 
-            case 3:
-                fisherman.leaveFishingPlace();
-                break;
+            cin >> bait_choice;
+            try {
+                fisherman.setCurrentBait(fisherman.current_lake->bait.find(bait_choice)->first);
+            }
+            catch (bad_alloc) {
+                cout << "Type name, not number!!\n" << endl;
+            }
+        }
 
-            case 4:
-                cout << "Accessible lakes: " << endl;
-                for (int i = 0; i < lakes.size(); i++)
-                {
-                    cout << i + 1 << ". " << lakes[i].name << endl;
-                }
-                cout << "Select lake: ";
-                int lake_choice;
-                cin >> lake_choice;
-                if (!fisherman.pay(lakes[lake_choice - 1].cost))
-                {
-                    break;
-                }
-                fisherman.setCurrentLake(&lakes[lake_choice - 1]);
-                break;
+        else if (choice == Actions::SellFishes)
+            fisherman.leaveFishingPlace();
 
-            case 5:
+
+        else if (choice == Actions::ChangeLake) {
+            cout << "Accessible lakes: " << endl;
+            for (int i = 0; i < lakes.size(); i++) {
+                cout << i + 1 << ". " << lakes[i].name << endl;
+            }
+
+            cout << "Select lake: ";
+            int lake_choice;
+            cin >> lake_choice;
+            if (!fisherman.pay(lakes[lake_choice - 1].cost)) {
+                continue;
+            }
+            fisherman.setCurrentLake(&lakes[lake_choice - 1]);
+        }
+
+        else if (choice == Actions::CurrentCatch)
                 fisherman.showInfo();
-                break;
 
-            case 6:
-                if (!fisherman.extendFishingTime())
-                {
-                    break;
-                }
-                break;
 
-            case 7:
-                return 0;
+        else if (choice == Actions::ExtendTime)
+            fisherman.extendFishingTime();
 
-            default:
-                cout << "Incorrect choice." << endl;
-                break;
+        else if (choice == Actions::Exit)
+            return 0;
+
+        else
+            cout << "Incorrect choice." << endl;
         }
     }
-}
 
+    
