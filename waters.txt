@@ -1,0 +1,2 @@
+river 80
+ocean 40
